@@ -3,19 +3,25 @@
  * @brief common svg component for mofron
  * @author simpart
  */
-let mf = require('mofron');
+const Dom = mofron.class.Dom;
 
 /**
  * @class mofron.comp.Svg
  * @brief svg component for mofron
  */
-mf.comp.Svg = class extends mf.Component {
+module.exports = class extends mofron.class.Component {
     
-    constructor (po) {
+    constructor (p1) {
         try {
             super();
-            this.name('Svg');
-            this.prmOpt(po);
+            this.modname('Svg');
+            
+            /* init config */
+            //this.confmng().add({ type:'' });
+
+            if (0 < arguments.length) {
+                this.config(p1);
+            }
         } catch (e) {
             console.error(e.stack);
             throw e;
@@ -42,6 +48,21 @@ mf.comp.Svg = class extends mf.Component {
             throw e;
         }
     }
+
+    afterRender () {
+        try {
+            super.afterRender();
+            if (0 < this.childDom().child().length) {
+                var parser  = new DOMParser();
+                var doc     = parser.parseFromString(this.childDom().child()[0].value(), "image/svg+xml");
+                var svgNode = doc.documentElement;
+                this.rootDom()[0].getRawDom().appendChild(svgNode);
+            }
+	} catch (e) {
+            console.error(e.stack);
+            throw e;
+        } 
+    }
     
     svgConf (cnf) {
         try {
@@ -56,7 +77,7 @@ mf.comp.Svg = class extends mf.Component {
             for (let cidx in cnf) {
                 this.m_svgcnf[cidx] = cnf[cidx];
             }
-            this.target().attr(this.m_svgcnf);
+            this.childDom().attrs(this.m_svgcnf);
         } catch (e) {
             console.error(e.stack);
             throw e;
@@ -65,8 +86,19 @@ mf.comp.Svg = class extends mf.Component {
     
     setContents (prm) {
         try {
-            this.target().text(prm);
+            //this.childDom().text(prm);
         } catch (e) {
+            console.error(e.stack);
+            throw e;
+        }
+    }
+
+    addPath (prm) {
+        try {
+            let path = new Dom({ tag:'path' });
+            path.attrs(prm);
+            this.childDom().child(path);
+	} catch (e) {
             console.error(e.stack);
             throw e;
         }
@@ -74,7 +106,7 @@ mf.comp.Svg = class extends mf.Component {
     
     width (prm) {
         try {
-            this.target().attr({ 'width' : ('number' === typeof prm)? prm + 'px' : prm });
+            this.childDom().attrs({ 'width' : ('number' === typeof prm)? prm + 'px' : prm });
         } catch (e) {
             console.error(e.stack);
             throw e;
@@ -83,12 +115,11 @@ mf.comp.Svg = class extends mf.Component {
     
     height (prm) {
         try {
-            this.target().attr({ 'height' : ('number' === typeof prm)? prm + 'px' : prm });
+            this.childDom().attrs({ 'height' : ('number' === typeof prm)? prm + 'px' : prm });
         } catch (e) {
             console.error(e.stack);
             throw e;
         }
     }
 }
-module.exports = mofron.comp.Svg;
 /* end of file */
